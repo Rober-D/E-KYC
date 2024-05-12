@@ -1,5 +1,12 @@
+import 'package:e_kyc/core/util.dart';
+import 'package:e_kyc/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:e_kyc/features/auth/presentation/pages/register_page.dart';
+import 'package:e_kyc/features/auth/presentation/widgets/input_text_widget.dart';
+import 'package:e_kyc/features/auth/presentation/widgets/login_page_widgets/login_header_widget.dart';
+import 'package:e_kyc/features/auth/presentation/widgets/login_page_widgets/to_signup_widget.dart';
+import 'package:e_kyc/features/auth/presentation/widgets/logo_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class LoginPage extends StatelessWidget {
   final TextEditingController _usernameController = TextEditingController();
@@ -13,42 +20,19 @@ class LoginPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        backgroundColor: const Color(0xFF03312b),
-        body: Container(
-          margin: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _logo(),
-              _header(context),
-              _inputField(context),
-              _signup(context),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-  _logo() {
-    return Align(
-      alignment: Alignment.topLeft,
-      child: Image.asset(
-        'assets/images/logo.png',
-        width: 100,
-        height: 100,
-      ),
-    );
-  }
-
-  _header(context) {
-    return Column(
-      children: const [
-        Text(
-          "LOGIN",
-          style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold,color: Colors.white),
-        ),
-        Text("Enter your credential to login",style: TextStyle(color: Colors.white),),
-      ],
+          backgroundColor: const Color(0xFF03312b),
+          body: Container(
+            margin: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                LogoWidget(width: 100, height: 100),
+                const LoginHeaderWidget(),
+                _inputField(context),
+                const ToSignUpWidget(),
+              ],
+            ),
+          )),
     );
   }
 
@@ -56,38 +40,34 @@ class LoginPage extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        TextField(
-          controller: _usernameController,
-          decoration: InputDecoration(
-
-              hintText: "Username",
-              fillColor:  const Color(0xFF003A31),
-              border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(18),
-                  borderSide: BorderSide.none),
-
-              filled: true,
-              prefixIcon: const Icon(Icons.person)),
-        ),
-        const SizedBox(height: 10),
-        TextField(
-          controller: _passwordController,
-          decoration: InputDecoration(
+        InputTextWidget(
+            inputController: _usernameController,
+            hintText: "Username",
+            icon: const Icon(
+              Icons.person,
+              color: Color(0xFFEE7A0A),
+            ),
+            isPassword: false,
+            forNumbersOrCalenderOrGender: 0),
+        const SizedBox(height: 15),
+        InputTextWidget(
+            inputController: _passwordController,
             hintText: "Password",
-            fillColor:  const Color(0xFF003A31),
-            border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(18),
-                borderSide: BorderSide.none),
-
-            filled: true,
-            prefixIcon: const Icon(Icons.password_outlined),
-          ),
-          obscureText: true,
-        ),
+            icon: const Icon(
+              Icons.password,
+              color: Color(0xFFEE7A0A),
+            ),
+            isPassword: true,
+            forNumbersOrCalenderOrGender: 0),
         const SizedBox(height: 10),
         ElevatedButton(
           onPressed: () {
-            _validateLogin(context);
+            bool login = _validateLogin(context);
+            if (login) {
+              BlocProvider.of<AuthBloc>(context).add(LoginEvent(
+                  emailOrUserName: _usernameController.text,
+                  password: _passwordController.text));
+            }
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFFEE7A0A),
@@ -96,43 +76,23 @@ class LoginPage extends StatelessWidget {
           ),
           child: const Text(
             "Login",
-            style: TextStyle(fontSize: 20,color: Colors.white),
+            style: TextStyle(fontSize: 20, color: Colors.white),
           ),
         )
       ],
     );
   }
-  _signup(context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const Text("Don't have an account? ",style: TextStyle(color: Colors.white),),
-        TextButton(onPressed: () {  Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => RegisterPage()),
-        );
-        }, child: const Text("Sign Up",
-            style: TextStyle(color: Color(0xFFEE7A0A))))
-      ],
-    );
-  }
-  void _showSnackBar(BuildContext context, String message) {
-    final snackBar = SnackBar(
-      content: Text(message),
-      duration: const Duration(seconds: 2),
 
-    );
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
-  }
-  void _validateLogin(BuildContext context) {
+  bool _validateLogin(BuildContext context) {
     String username = _usernameController.text;
-
     String password = _passwordController.text;
+    SnackBarMessage snackBarMessage = SnackBarMessage();
 
-
-    if (username.isEmpty || password.isEmpty ) {
-      _showSnackBar(context, "Please fill in all fields.");
-      return;
+    if (username.isEmpty || password.isEmpty) {
+      snackBarMessage.showAuthSnackBar(context, "Please fill in all fields.");
+      return false;
+    } else {
+      return true;
     }
   }
 }

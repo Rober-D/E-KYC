@@ -4,6 +4,7 @@ import '../../../../core/error/failres.dart';
 
 abstract class NationalIdRepository{
   Future<Either<Failures,NationalIdEntity>> getNationalId();
+  Future<Either<Failures,Unit>> createNationalId();
   Future<Either<Failures,Unit>> updateNationalId();
   Future<Either<Failures,Unit>> deleteNationalId();
 }

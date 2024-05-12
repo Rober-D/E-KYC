@@ -13,10 +13,10 @@ class AuthenticationRepositoryImpl extends AuthenticationRepository{
   AuthenticationRepositoryImpl({required this.remoteDataSource, required this.networkInfo});
 
   @override
-  Future<Either<Failures, Unit>> logIn() async{
+  Future<Either<Failures, Unit>> logIn({required String emailOrUsername, required String password}) async{
     if(await networkInfo.isConnected){
       try{
-        await remoteDataSource.logIn();
+        await remoteDataSource.logIn(emailOrUsername: emailOrUsername,password: password);
         return const Right(unit);
       }on ServerException{
         return Left(ServerFailure());

@@ -7,7 +7,7 @@ class LoginUseCase{
 
   LoginUseCase({required this.authenticationRepository});
 
-  Future<Either<Failures,Unit>> call ()async{
-    return await authenticationRepository.logIn();
+  Future<Either<Failures,Unit>> call ({required String emailOrUsername, required String password})async{
+    return await authenticationRepository.logIn(emailOrUsername: emailOrUsername, password: password);
   }
 }

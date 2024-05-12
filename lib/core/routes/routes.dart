@@ -9,11 +9,10 @@ class Routes {
     switch (settings.name) {
       case RegisterPage.routeName:
         return MaterialPageRoute(
-            builder: (context) => RegisterPage(), settings: settings);
+            builder: (context) => const RegisterPage(), settings: settings);
       case LoginPage.routeName:
         return MaterialPageRoute(
             builder: (context) => LoginPage(), settings: settings);
-
 
       default:
         return MaterialPageRoute(
