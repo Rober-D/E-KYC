@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:e_kyc/features/national_id/data/models/national_id_image_data_model.dart';
 import 'package:e_kyc/features/national_id/domain/entities/national_id_entity.dart';
 import 'package:e_kyc/features/national_id/presentation/pages/make_sure.dart';
 import 'package:flutter/material.dart';
@@ -22,7 +23,7 @@ class CreateNationalIdCardPage extends StatefulWidget {
 class _CreateNationalIdCardPageState extends State<CreateNationalIdCardPage> {
   XFile? _imageFile;
   String? _base64Image;
-  String? _responseText;
+  NationalIdImageDataModel? _responseText;
   bool _isLoading = false ;
 
   @override
@@ -111,9 +112,10 @@ class _CreateNationalIdCardPageState extends State<CreateNationalIdCardPage> {
                       ? Center(
                           child: MaterialButton(
                             minWidth: 200,
-                            onPressed: () {
+                            onPressed: () async{
                               /// ToDo - Extract Image by ML Algorithm ( Using flask API ).
-                              _triggerServer();
+                              _responseText = await _triggerServer();
+                              print("The response has been returned is : $_responseText");
                             },
                             color: PRIMARY_GREEN,
                             child: const Text(
@@ -122,20 +124,21 @@ class _CreateNationalIdCardPageState extends State<CreateNationalIdCardPage> {
                             ),
                           ),
                         )
-                      : Center(
+                      : _responseText!.ocrData[0] == "Not Egyptian ID , please try again..." ? const Text("This is not a National ID, please upload valid one") :
+                  (_responseText!.ocrData[0] == "The picture is not clear enough , please take a close , high resolution and clear picture") ? const Text("Please take a clear National ID image") :
+                  Center(
                           child: MaterialButton(
                             minWidth: 200,
                             onPressed: () {
                               /// ToDo - Use Create National ID API.
-                              List<String> decodedResponse =
-                                  _fetchResponseToArray(_responseText!);
+
                               NationalIdEntity nationalId = NationalIdEntity(
-                                  firstName: decodedResponse[0],
-                                  lastName: decodedResponse[1],
-                                  nationalId: decodedResponse[2],
-                                  birthday: decodedResponse[3],
-                                  address: decodedResponse[4],
-                                  gender: decodedResponse[5],
+                                  firstName: _responseText!.ocrData[0],
+                                  lastName: _responseText!.ocrData[1],
+                                  nationalId: _responseText!.ocrData[2],
+                                  birthday: _responseText!.ocrData[3],
+                                  address: _responseText!.ocrData[4],
+                                  gender: _responseText!.ocrData[5],
                                   image: _base64Image!,
                                   status: "PENDING",
                                   contractAmount: 250);
@@ -248,10 +251,11 @@ class _CreateNationalIdCardPageState extends State<CreateNationalIdCardPage> {
     );
   }
 
-  Future<void> _triggerServer() async {
+  Future<NationalIdImageDataModel> _triggerServer() async {
     setState(() {
       _isLoading = true;
     });
+    NationalIdImageDataModel res;
     var url =
         'https://1b79-154-178-42-195.ngrok-free.app/flutter'; // Replace with your Flask server URL
     var request = http.MultipartRequest(
@@ -272,28 +276,23 @@ class _CreateNationalIdCardPageState extends State<CreateNationalIdCardPage> {
     http.StreamedResponse response = await request.send();
     if (response.statusCode == 200) {
       String responseData = await response.stream.bytesToString();
-      setState(() {
-        _responseText = _decodeUnicodeEscape(responseData);
-      });
-      Map<String, dynamic> jsonData = json.decode(_responseText!);
-      List<dynamic> ocrData = jsonData['ocr_data'];
-      List<String> dataArray =
-          ocrData.map((dynamic item) => item.toString().trim()).toList();
+      res = _decodeUnicodeEscape(responseData);
+      setState(() {});
     } else {
-      setState(() {
-        _responseText = 'Error: ${response.reasonPhrase}';
-      });
+        String responseData = await response.stream.bytesToString();
+        res = _decodeUnicodeEscape(responseData);
+        setState(() {});
+
     }
     setState(() {
       _isLoading = false;
     });
+    return res;
   }
 
-  String _decodeUnicodeEscape(String input) {
-    return input.replaceAllMapped(RegExp(r'\\u[0-9a-fA-F]{4}'), (match) {
-      return String.fromCharCode(
-          int.parse(match.group(0)!.substring(2), radix: 16));
-    });
+  NationalIdImageDataModel _decodeUnicodeEscape(String input) {
+    Map<String, dynamic> decodedJson = json.decode(input);
+    return NationalIdImageDataModel.fromJson(decodedJson);
   }
 
   List<String> _fetchResponseToArray(String response) {

@@ -2,6 +2,7 @@ import 'package:e_kyc/core/routes/routes.dart';
 import 'package:e_kyc/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:e_kyc/features/auth/presentation/pages/login_page.dart';
 import 'package:e_kyc/features/auth/presentation/provider/user_token_provider.dart';
+import 'package:e_kyc/splash_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:e_kyc/injection_container.dart' as di;
@@ -36,7 +37,7 @@ class MyApp extends StatelessWidget {
             primarySwatch: Colors.blue,
           ),
           onGenerateRoute: Routes.generateRoute,
-          home: LoginPage(),
+          home: SplashPage(),
         ),
       )
     );

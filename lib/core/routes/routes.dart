@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 
 import '../../features/auth/presentation/pages/register_page.dart';
 import '../../features/national_id/presentation/pages/home_page.dart';
+import '../../splash_page.dart';
 
 // Routes to Navigate between screens.
 class Routes {
@@ -14,6 +15,9 @@ class Routes {
       case RegisterPage.routeName:
         return MaterialPageRoute(
             builder: (context) => const RegisterPage(), settings: settings);
+      case SplashPage.routeName:
+        return MaterialPageRoute(
+            builder: (context) => const SplashPage(), settings: settings);
       case LoginPage.routeName:
         return MaterialPageRoute(
             builder: (context) => LoginPage(), settings: settings);
