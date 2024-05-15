@@ -23,6 +23,8 @@ dependencies:
   shared_preferences: ^2.0.13
   provider: ^6.1.2
   image_picker: ^1.0.4
+  jwt_decoder:
+  google_fonts: ^4.0.4
 
 dev_dependencies:
   flutter_test:

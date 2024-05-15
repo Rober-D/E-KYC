@@ -7,7 +7,7 @@ class DeleteNationalIdUseCase{
 
   DeleteNationalIdUseCase({required this.nationalIdRepository});
 
-  Future<Either<Failures,Unit>>call() async{
+  Future<Unit>call() async{
     return await nationalIdRepository.deleteNationalId();
   }
 }

@@ -1,5 +1,4 @@
-import 'package:dartz/dartz.dart';
-import 'package:e_kyc/core/error/failres.dart';
+import 'package:e_kyc/features/auth/domain/entities/user_status.dart';
 import 'package:e_kyc/features/auth/domain/repositories/AuthenticationRepository.dart';
 
 class LoginUseCase{
@@ -7,7 +6,7 @@ class LoginUseCase{
 
   LoginUseCase({required this.authenticationRepository});
 
-  Future<Either<Failures,Unit>> call ({required String emailOrUsername, required String password})async{
+  Future<UserStatusEntity> call ({required String emailOrUsername, required String password})async{
     return await authenticationRepository.logIn(emailOrUsername: emailOrUsername, password: password);
   }
 }

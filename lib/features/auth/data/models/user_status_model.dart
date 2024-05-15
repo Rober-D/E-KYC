@@ -8,7 +8,7 @@ class UserStatusModel extends UserStatusEntity {
   factory UserStatusModel.fromJson(Map<String, dynamic>json){
     return UserStatusModel(userToken: json["accessToken"],
         tokenType: json["tokenType"],
-        errorMessage: json["errorMessage"]);
+        errorMessage: json["errorMessage"] ?? "");
   }
 
   Map<String, dynamic> toJson() {

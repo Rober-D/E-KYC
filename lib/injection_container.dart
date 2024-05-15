@@ -3,8 +3,17 @@
 import 'package:e_kyc/features/auth/data/datasources/authetication_remote_data_source.dart';
 import 'package:e_kyc/features/auth/data/repositories/AuthenticationRepositoryImpl.dart';
 import 'package:e_kyc/features/auth/domain/repositories/AuthenticationRepository.dart';
+import 'package:e_kyc/features/auth/domain/usecases/get_username_usecase.dart';
 import 'package:e_kyc/features/auth/domain/usecases/login_usecase.dart';
 import 'package:e_kyc/features/auth/domain/usecases/register_usecase.dart';
+import 'package:e_kyc/features/national_id/data/datasources/national_id_remote_date_source.dart';
+import 'package:e_kyc/features/national_id/data/repositories/national_id_repository_impl.dart';
+import 'package:e_kyc/features/national_id/domain/repositories/national_id_repository.dart';
+import 'package:e_kyc/features/national_id/domain/usecases/create_national_id_usecase.dart';
+import 'package:e_kyc/features/national_id/domain/usecases/delete_national_id_usecase.dart';
+import 'package:e_kyc/features/national_id/domain/usecases/get_national_id_usecase.dart';
+import 'package:e_kyc/features/national_id/domain/usecases/update_national_id_usecase.dart';
+import 'package:e_kyc/features/national_id/presentation/bloc/national_id_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -19,20 +28,38 @@ Future<void> init() async {
 
   // Bloc - Factory.
   // one line for each bloc.
-  sl.registerFactory(() => AuthBloc(loginUseCase: sl(),registerUseCase: sl()));
+  sl.registerFactory(() => AuthBloc(loginUseCase: sl(), registerUseCase: sl(), getUserUseCase: sl()));
+  sl.registerFactory(() => NationalIdBloc(
+      createNationalIdUseCase: sl(),
+      deleteNationalIdUseCase: sl(),
+      getNationalIdUseCase: sl(),
+      updateNationalIdUseCase: sl()));
 
   // Usecases - Lazy Singleton.
-  sl.registerLazySingleton(() => RegisterUseCase(authenticationRepository: sl()));
+  sl.registerLazySingleton(
+      () => RegisterUseCase(authenticationRepository: sl()));
   sl.registerLazySingleton(() => LoginUseCase(authenticationRepository: sl()));
+  sl.registerLazySingleton(() => GetUserUseCase(authenticationRepository: sl()));
+  sl.registerLazySingleton(() => CreateNationalIdUseCase(nationalIdRepository: sl()));
+  sl.registerLazySingleton(() => GetNationalIdUseCase(nationalIdRepository: sl()));
+  sl.registerLazySingleton(() => UpdateNationalIdUseCase(nationalIdRepository: sl()));
+  sl.registerLazySingleton(() => DeleteNationalIdUseCase(nationalIdRepository: sl()));
 
   // Repository - Lazy Singleton.
-  sl.registerLazySingleton<AuthenticationRepository>(() => AuthenticationRepositoryImpl(remoteDataSource: sl(),networkInfo: sl()));
+  sl.registerLazySingleton<AuthenticationRepository>(() =>
+      AuthenticationRepositoryImpl(remoteDataSource: sl(), networkInfo: sl()));
+  sl.registerLazySingleton<NationalIdRepository>(() =>
+      NationalIdRepositoryImpl(networkInfo: sl(),nationalIdRemoteDataSource: sl()));
 
   // Datasources
-  sl.registerLazySingleton<AuthenticationRemoteDataSource>(() => AuthRemoteDataSourceDio());
+  sl.registerLazySingleton<AuthenticationRemoteDataSource>(
+      () => AuthRemoteDataSourceDio());
+  sl.registerLazySingleton<NationalIdRemoteDataSource>(
+      () => NationalIdRemoteDataSourceDio());
 
   // Core
-  sl.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(connectionChecker: sl()));
+  sl.registerLazySingleton<NetworkInfo>(
+      () => NetworkInfoImpl(connectionChecker: sl()));
 
   // External
   final sharedPreferences = await SharedPreferences.getInstance();

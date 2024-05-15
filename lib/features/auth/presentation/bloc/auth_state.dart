@@ -18,10 +18,10 @@ class LoadedState extends AuthState {
 
 }
 
-class ErrorState extends AuthState{
+class AuthErrorState extends AuthState{
   final String errorMsg;
 
-  const ErrorState({required this.errorMsg});
+  const AuthErrorState({required this.errorMsg});
 
   @override
   List<Object> get props => [errorMsg];

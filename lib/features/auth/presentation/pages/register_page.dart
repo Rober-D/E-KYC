@@ -1,7 +1,10 @@
+import 'package:e_kyc/features/auth/domain/entities/user_entity.dart';
 import 'package:e_kyc/features/auth/presentation/widgets/auth_button_widget.dart';
 import 'package:e_kyc/features/auth/presentation/widgets/register_page_widgets/to_login_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/util.dart';
+import '../bloc/auth_bloc.dart';
 import '../widgets/input_text_widget.dart';
 import '../widgets/logo_widget.dart';
 import '../widgets/register_page_widgets/register_header_widget.dart';
@@ -23,7 +26,8 @@ class _RegisterPageState extends State<RegisterPage> {
 
   final TextEditingController _passwordController = TextEditingController();
 
-  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+  TextEditingController();
 
   final TextEditingController _mobileNumberController = TextEditingController();
 
@@ -37,21 +41,24 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget build(BuildContext context) {
     return SafeArea(
         child: Scaffold(
-      backgroundColor: const Color(0xFF03312b),
-      body: SingleChildScrollView(
-        child: Container(
-          margin: const EdgeInsets.all(24),
-          child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                LogoWidget(width: 60, height: 60,),
-                const RegisterHeaderWidget(),
-                _inputFields(context),
-                const ToLoginWidget(),
-              ]),
-        ),
-      ),
-    ));
+          backgroundColor: const Color(0xFF03312b),
+          body: SingleChildScrollView(
+            child: Container(
+              margin: const EdgeInsets.all(24),
+              child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    LogoWidget(
+                      width: 60,
+                      height: 60,
+                    ),
+                    const RegisterHeaderWidget(),
+                    _inputFields(context),
+                    const ToLoginWidget(),
+                  ]),
+            ),
+          ),
+        ));
   }
 
   _inputFields(context) {
@@ -163,14 +170,30 @@ class _RegisterPageState extends State<RegisterPage> {
           height: 10,
         ),
         AuthButtonWidget(
-          validationFunction: _validateSignUp,
+          validationFunction: () {
+            bool registerCheck = _validateSignUp();
+            if (registerCheck) {
+              UserEntity newUser = UserEntity(userName: _usernameController.text,
+                  email: _emailController.text,
+                  password: _passwordController.text,
+                  mobileNumber: _mobileNumberController.text,
+                  birthdate: _dateController.text,
+                  nationalId: _nationalIdController.text,
+                  role: "USER",
+                  gender: _selectedGender.toString());
+
+              BlocProvider.of<AuthBloc>(context)
+                  .add(RegisterEvent(newUser: newUser));
+            }
+            Navigator.pushReplacementNamed(context, LoginPage.routeName);
+          },
           hintText: 'Sign Up',
         ),
       ],
     );
   }
 
-  _validateSignUp() {
+  bool _validateSignUp() {
     String username = _usernameController.text;
     String mobile = _mobileNumberController.text;
     String nationalId = _nationalIdController.text;
@@ -191,33 +214,32 @@ class _RegisterPageState extends State<RegisterPage> {
         password.isEmpty ||
         confirmPassword.isEmpty) {
       snackBarMessage.showAuthSnackBar(context, "Please fill in all fields.");
-      return;
+      return false;
     }
 
-    if(nationalId.length != 14){
-      snackBarMessage.showAuthSnackBar(context, "Please Enter a valid National ID with 14 digit");
-      return;
+    if (nationalId.length != 14) {
+      snackBarMessage.showAuthSnackBar(
+          context, "Please Enter a valid National ID with 14 digit");
+      return false;
     }
-
 
     if (!email.contains("@") || !email.contains(".com")) {
-      snackBarMessage.showAuthSnackBar(context, "Email should contain @ and .com");
-      return;
+      snackBarMessage.showAuthSnackBar(
+          context, "Email should contain @ and .com");
+      return false;
     }
 
-    if(password.length < 8){
-      snackBarMessage.showAuthSnackBar(context, "Please Enter at least 8 characters");
-      return;
+    if (password.length < 8) {
+      snackBarMessage.showAuthSnackBar(
+          context, "Please Enter at least 8 characters");
+      return false;
     }
 
     if (password != confirmPassword) {
       snackBarMessage.showAuthSnackBar(context, "Passwords do not match.");
-      return;
+      return false;
     }
 
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => LoginPage()),
-    );
+    return true;
   }
 }

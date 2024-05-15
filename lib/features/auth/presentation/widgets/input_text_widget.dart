@@ -9,6 +9,8 @@ class InputTextWidget extends StatelessWidget {
     required this.icon,
     required this.isPassword,
     required this.forNumbersOrCalenderOrGender,
+    this.isArabicDirection = false,
+    this.readOnly = false,
   });
 
   final TextEditingController inputController;
@@ -16,10 +18,14 @@ class InputTextWidget extends StatelessWidget {
   final Icon icon;
   final bool isPassword;
   final int forNumbersOrCalenderOrGender;
+  final bool isArabicDirection;
+  final bool readOnly;
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      readOnly: readOnly,
+      textDirection: isArabicDirection ? TextDirection.rtl : TextDirection.ltr,
       controller: inputController,
       style: const TextStyle(color: Colors.grey),
       decoration: InputDecoration(

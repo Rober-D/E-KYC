@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 
 class NationalIdEntity extends Equatable {
+  final String? id;
   final String firstName;
   final String lastName;
   final String address;
@@ -9,10 +10,12 @@ class NationalIdEntity extends Equatable {
   final String birthday;
   final String gender;
   final String image;
+  //final String manuFactorId;
   final double contractAmount;
 
   const NationalIdEntity(
-      {required this.firstName,
+      {this.id,
+      required this.firstName,
       required this.lastName,
       required this.address,
       required this.nationalId,
@@ -20,11 +23,13 @@ class NationalIdEntity extends Equatable {
       required this.birthday,
       required this.gender,
       required this.image,
+      //required this.manuFactorId,
       required this.contractAmount});
 
   @override
   // TODO: implement props
   List<Object?> get props => [
+        id,
         firstName,
         lastName,
         address,
@@ -33,6 +38,7 @@ class NationalIdEntity extends Equatable {
         birthday,
         gender,
         image,
+        //manuFactorId,
         contractAmount
       ];
 }
