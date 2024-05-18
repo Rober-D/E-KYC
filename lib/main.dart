@@ -1,7 +1,7 @@
 import 'package:e_kyc/core/routes/routes.dart';
 import 'package:e_kyc/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:e_kyc/features/auth/presentation/pages/login_page.dart';
 import 'package:e_kyc/features/auth/presentation/provider/user_token_provider.dart';
+import 'package:e_kyc/features/national_id/presentation/server_bloc/server_bloc.dart';
 import 'package:e_kyc/splash_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -26,6 +26,7 @@ class MyApp extends StatelessWidget {
       providers: [
         BlocProvider(create: (_) => di.sl<AuthBloc>()),
         BlocProvider(create: (_) => di.sl<NationalIdBloc>()),
+        BlocProvider(create: (_) => di.sl<ServerBloc>()),
       ],
       child: MultiProvider(
         providers: [

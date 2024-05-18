@@ -14,14 +14,22 @@ import 'package:provider/provider.dart';
 import '../../../../core/colors.dart';
 import '../../../national_id/presentation/pages/home_page.dart';
 
-class LoginPage extends StatelessWidget {
-  final TextEditingController _usernameController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  String userToken = "";
+class LoginPage extends StatefulWidget {
 
   LoginPage({super.key});
 
   static const String routeName = "LoginPage";
+
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  final TextEditingController _usernameController = TextEditingController();
+
+  final TextEditingController _passwordController = TextEditingController();
+  bool loading = false;
+  String userToken = "";
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +38,7 @@ class LoginPage extends StatelessWidget {
     return SafeArea(
       child: Scaffold(
           backgroundColor: PRIMARY_GREEN,
-          body: Container(
+          body: loading == false ? Container(
             margin: const EdgeInsets.all(24),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -42,6 +50,9 @@ class LoginPage extends StatelessWidget {
                   onPressed: () async {
                     bool login = _validateLogin(context);
                     if (login) {
+                      setState(() {
+                        loading = true;
+                      });
                       var userState = await BlocProvider.of<AuthBloc>(context)
                           .loginUseCase
                           .authenticationRepository
@@ -95,7 +106,7 @@ class LoginPage extends StatelessWidget {
                 const ToSignUpWidget(),
               ],
             ),
-          )),
+          ): Center(child: CircularProgressIndicator(color: PRIMARY_ORANGE,))),
     );
   }
 

@@ -29,13 +29,14 @@ class UpdateNationalIdEvent extends NationalIdEvent{
 }
 
 class GetNationalIdEvent extends NationalIdEvent{
+  NationalIdEntity nationalIdEntity;
   String nationalId;
   String token;
 
-  GetNationalIdEvent({required this.nationalId, required this.token});
+  GetNationalIdEvent({required this.nationalId, required this.token, required this.nationalIdEntity});
 
   @override
-  List<Object> get props => [nationalId];
+  List<Object> get props => [nationalId,token,nationalIdEntity];
 }
 
 class DeleteNationalIdEvent extends NationalIdEvent{

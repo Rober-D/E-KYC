@@ -1,14 +1,16 @@
 import 'package:e_kyc/core/colors.dart';
 import 'package:e_kyc/features/auth/presentation/provider/user_token_provider.dart';
-import 'package:e_kyc/features/national_id/domain/entities/national_id_entity.dart';
+import 'package:e_kyc/features/national_id/domain/entities/server_entity.dart';
 import 'package:e_kyc/features/national_id/presentation/bloc/national_id_bloc.dart';
 import 'package:e_kyc/features/national_id/presentation/pages/create_national_id.dart';
+import 'package:e_kyc/features/national_id/presentation/pages/view_national_id_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-
 import '../../../../core/util.dart';
+import '../../domain/entities/national_id_entity.dart';
+import '../server_bloc/server_bloc.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -17,8 +19,6 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    UserTokenProvider userTokenProvider =
-        Provider.of<UserTokenProvider>(context);
     return Scaffold(
       backgroundColor: BACKGROUND,
       appBar: AppBar(
@@ -88,15 +88,44 @@ class HomePage extends StatelessWidget {
                       color: TEXT_COLOR_2, fontWeight: FontWeight.w700),
                 ),
                 ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
                     /// ToDo - Check if the user has a national id or not.
-                    BlocProvider.of<NationalIdBloc>(context).add(
-                        GetNationalIdEvent(
-                            nationalId:
-                                userTokenProvider.userLoggedIn!.nationalId!,
-                            token: userTokenProvider.token!));
-                    Navigator.pushNamed(
-                        context, CreateNationalIdCardPage.routeName);
+                    // ServerEntity server = ServerEntity(localHostServer: "");
+                    // BlocProvider.of<ServerBloc>(context)
+                    //     .add(GetServerLinkEvent(serverEntity: server));
+                    var nid = await BlocProvider.of<NationalIdBloc>(context)
+                        .getNationalIdUseCase
+                        .nationalIdRepository
+                        .getNationalId(
+                        userNationalId:
+                        userTokenProvider.userLoggedIn!.nationalId!,
+                        userToken: userTokenProvider.token!);
+
+                    nid.fold((failure) {
+                      Navigator.pushNamed(
+                          context, CreateNationalIdPage.routeName);
+                    }, (r){
+                      Navigator.pushNamed(
+                          context, CreateNationalIdPage.routeName);
+
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: const Text('Attention'),
+                            content: const Text('You already have an NID Card. Go and view it.'),
+                            actions: <Widget>[
+                              TextButton(
+                                child: const Text('OK'),
+                                onPressed: () {
+                                  Navigator.of(context).pop(); // Close the dialog
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    });
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: PRIMARY_GREEN, // Background color
@@ -116,25 +145,25 @@ class HomePage extends StatelessWidget {
                         color: TEXT_COLOR_2, fontWeight: FontWeight.w700)),
                 ElevatedButton(
                   onPressed: () async {
-                    print("Username : ${userTokenProvider.userLoggedIn!.userName!}");
-                    print("NID : ${userTokenProvider.userLoggedIn!.nationalId!}");
-                    print("BD : ${userTokenProvider.userLoggedIn!.birthdate!}");
-                    NationalIdEntity nid =
-                        await BlocProvider.of<NationalIdBloc>(context)
-                            .getNationalIdUseCase
-                            .nationalIdRepository
-                            .getNationalId(
-                                userNationalId:
-                                    userTokenProvider.userLoggedIn!.nationalId!,
-                                userToken: userTokenProvider.token!);
-                    if (nid.id == "There is no NID for this username") {
+                    var nid = await BlocProvider.of<NationalIdBloc>(context)
+                        .getNationalIdUseCase
+                        .nationalIdRepository
+                        .getNationalId(
+                            userNationalId:
+                                userTokenProvider.userLoggedIn!.nationalId!,
+                            userToken: userTokenProvider.token!);
+
+                    nid.fold((failure) {
                       SnackBarMessage snackbar = SnackBarMessage();
                       snackbar.showErrorSnackBar(
-                          msg: nid.nationalId, context: context);
-                    } else {
-                      Navigator.pushReplacementNamed(
-                          context, CreateNationalIdCardPage.routeName);
-                    }
+                          msg:
+                              "There is No NID Card Match this NID Number",
+                          context: context);
+                    }, (success) {
+                      BlocProvider.of<NationalIdBloc>(context).add(GetNationalIdEvent(nationalId: success.nationalId, token: userTokenProvider.token!,nationalIdEntity: success));
+                      Navigator.pushNamed(
+                          context, ViewNationalIdPage.routeName);
+                    });
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: PRIMARY_GREEN, // Background color

@@ -18,7 +18,7 @@ class UserModel extends UserEntity {
           gender: json["gender"],
           birthdate: json["birthdate"],
           email: json["email"],
-          nationalId: json["national_id"],
+          nationalId: json["nationalId"],
           password: json["password"],
           role: json["role"]
       );

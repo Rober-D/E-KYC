@@ -1,11 +1,12 @@
 import 'package:e_kyc/features/auth/presentation/pages/login_page.dart';
 import 'package:e_kyc/features/national_id/presentation/pages/choose.dart';
+import 'package:e_kyc/features/national_id/presentation/pages/view_national_id_page.dart';
 import 'package:e_kyc/features/national_id/presentation/pages/create_national_id.dart';
-import 'package:e_kyc/features/national_id/presentation/pages/make_sure.dart';
 import 'package:flutter/material.dart';
 
 import '../../features/auth/presentation/pages/register_page.dart';
 import '../../features/national_id/presentation/pages/home_page.dart';
+import '../../features/national_id/presentation/pages/submit_national_id.dart';
 import '../../splash_page.dart';
 
 // Routes to Navigate between screens.
@@ -24,15 +25,18 @@ class Routes {
       case Choose.routeName:
         return MaterialPageRoute(
             builder: (context) => Choose(), settings: settings);
-      case Makesure.routeName:
-        return MaterialPageRoute(
-            builder: (context) => Makesure(), settings: settings);
       case HomePage.routeName:
         return MaterialPageRoute(
             builder: (context) => HomePage(), settings: settings);
-      case CreateNationalIdCardPage.routeName:
+      case ViewNationalIdPage.routeName:
         return MaterialPageRoute(
-            builder: (context) => CreateNationalIdCardPage(), settings: settings);
+            builder: (context) => ViewNationalIdPage(), settings: settings);
+      case CreateNationalIdPage.routeName:
+        return MaterialPageRoute(
+            builder: (context) => CreateNationalIdPage(), settings: settings);
+      case SubmitNationalIdPage.routeName:
+        return MaterialPageRoute(
+            builder: (context) => SubmitNationalIdPage(), settings: settings);
 
       default:
         return MaterialPageRoute(

@@ -193,8 +193,11 @@ class _RegisterPageState extends State<RegisterPage> {
 
               BlocProvider.of<AuthBloc>(context)
                   .add(RegisterEvent(newUser: newUser));
+
+              Navigator.pushReplacementNamed(context, LoginPage.routeName);
+            }else{
+
             }
-            Navigator.pushReplacementNamed(context, LoginPage.routeName);
           },
           hintText: 'Sign Up',
         ),

@@ -4,7 +4,7 @@ import 'package:e_kyc/core/strings/failures_msg.dart';
 import 'package:e_kyc/features/auth/domain/entities/user_entity.dart';
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
-import '../../domain/usecases/get_username_usecase.dart';
+import '../../domain/usecases/get_user_usecase.dart';
 import '../../domain/usecases/login_usecase.dart';
 import '../../domain/usecases/register_usecase.dart';
 part 'auth_event.dart';
