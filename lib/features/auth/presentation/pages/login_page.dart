@@ -1,4 +1,5 @@
 import 'package:e_kyc/core/util.dart';
+import 'package:e_kyc/features/auth/domain/entities/user_entity.dart';
 import 'package:e_kyc/features/auth/domain/entities/user_status.dart';
 import 'package:e_kyc/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:e_kyc/features/auth/presentation/provider/user_token_provider.dart';
@@ -14,7 +15,6 @@ import '../../../../core/colors.dart';
 import '../../../national_id/presentation/pages/home_page.dart';
 
 class LoginPage extends StatelessWidget {
-
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   String userToken = "";
@@ -42,29 +42,47 @@ class LoginPage extends StatelessWidget {
                   onPressed: () async {
                     bool login = _validateLogin(context);
                     if (login) {
-                      UserStatusEntity userState =
-                      await BlocProvider.of<AuthBloc>(context)
+                      var userState = await BlocProvider.of<AuthBloc>(context)
                           .loginUseCase
                           .authenticationRepository
                           .logIn(
-                          emailOrUsername: _usernameController.text,
-                          password: _passwordController.text);
+                              emailOrUsername: _usernameController.text,
+                              password: _passwordController.text);
 
                       SnackBarMessage snackMsg = SnackBarMessage();
-                      if (userState.errorMessage == "Invalid email or password") {
-
+                      userState.fold((failure) {
                         snackMsg.showErrorSnackBar(
-                            msg: userState.errorMessage, context: context);
-                      } else {
-                        tokenProvider.setUserToken(userState.userToken);
+                            msg: failure.errorMessage, context: context);
+                      }, (success) async{
+                        String userName = _getUserName(success);
+                        UserEntity userLoggedIn =
+                            await BlocProvider.of<AuthBloc>(context)
+                                .getUserUseCase
+                                .authenticationRepository
+                                .getUser(
+                                    username: userName,
+                                    userToken: success.userToken);
+
+                        print("User Token : ${success.userToken}");
+                        print("Username : ${userLoggedIn.userName}");
+                        print("NID : ${userLoggedIn.nationalId}");
+                        print("BD : ${userLoggedIn.birthdate}");
+                        print("Gender : ${userLoggedIn.gender}");
+                        print("Mobile : ${userLoggedIn.mobileNumber}");
+
+                        tokenProvider.setUserToken(success.userToken);
+                        tokenProvider.setUser(userLoggedIn);
+
                         snackMsg.showSuccessSnackBar(
                             msg: "Logged In Successfully", context: context);
 
-                        Navigator.pushReplacementNamed(context, HomePage.routeName);
-                      }
+                        Navigator.pushReplacementNamed(
+                            context, HomePage.routeName);
+                      });
                     }
                   },
-                  style: ElevatedButton.styleFrom(minimumSize: const Size(250, 30),
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size(250, 30),
                     backgroundColor: PRIMARY_ORANGE,
                     shape: const StadiumBorder(),
                     padding: const EdgeInsets.symmetric(vertical: 16),
@@ -122,7 +140,7 @@ class LoginPage extends StatelessWidget {
     }
   }
 
-  String _getUserName(UserStatusEntity user) {
+  String _getUserName(UserStatusSuccessEntity user) {
     Map<String, dynamic> decodedUserStatus = JwtDecoder.decode(user.userToken);
     return decodedUserStatus["sub"];
   }

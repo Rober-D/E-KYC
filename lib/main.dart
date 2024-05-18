@@ -38,7 +38,7 @@ class MyApp extends StatelessWidget {
             primarySwatch: Colors.blue,
           ),
           onGenerateRoute: Routes.generateRoute,
-          home: SplashPage(),
+          home: const SplashPage(),
         ),
       )
     );

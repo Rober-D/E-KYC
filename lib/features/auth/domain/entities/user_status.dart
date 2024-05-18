@@ -1,15 +1,25 @@
 import 'package:equatable/equatable.dart';
 
-class UserStatusEntity extends Equatable {
+class UserStatusSuccessEntity extends Equatable {
   final String userToken;
   final String tokenType;
-  final String errorMessage;
 
-  const UserStatusEntity(
+  const UserStatusSuccessEntity(
       {required this.userToken,
-      required this.tokenType,
-      required this.errorMessage});
+      required this.tokenType,});
 
   @override
-  List<Object?> get props => [userToken,tokenType,errorMessage];
+  List<Object?> get props => [userToken,tokenType];
+}
+
+class UserStatusFailedEntity extends Equatable{
+
+  final int status;
+  final String errorType;
+  final String errorMessage;
+
+  const UserStatusFailedEntity({required this.status, required this.errorType, required this.errorMessage});
+
+  @override
+  List<Object?> get props => [status,errorType,errorMessage];
 }

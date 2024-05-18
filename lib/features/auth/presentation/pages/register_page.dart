@@ -35,7 +35,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
   final TextEditingController _nationalIdController = TextEditingController();
 
-  String? _selectedGender;
+  final TextEditingController _genderController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -123,7 +123,7 @@ class _RegisterPageState extends State<RegisterPage> {
             Icons.transgender,
             color: Color(0xFFEE7A0A),
           ),
-          inputController: TextEditingController(text: _selectedGender),
+          inputController: _genderController,
           isPassword: false,
           forNumbersOrCalenderOrGender: 3,
         ),
@@ -173,6 +173,13 @@ class _RegisterPageState extends State<RegisterPage> {
           validationFunction: () {
             bool registerCheck = _validateSignUp();
             if (registerCheck) {
+              print("Username : ${_usernameController.text}");
+              print("NID : ${_nationalIdController.text}");
+              print("BD : ${_dateController.text}");
+              print("Gender : ${_genderController.text}");
+              print("Mobile : ${_mobileNumberController.text}");
+              print("=============================================");
+
               UserEntity newUser = UserEntity(userName: _usernameController.text,
                   email: _emailController.text,
                   password: _passwordController.text,
@@ -180,7 +187,9 @@ class _RegisterPageState extends State<RegisterPage> {
                   birthdate: _dateController.text,
                   nationalId: _nationalIdController.text,
                   role: "USER",
-                  gender: _selectedGender.toString());
+                  gender: _genderController.text);
+
+              print("USER NID : ${newUser.nationalId}");
 
               BlocProvider.of<AuthBloc>(context)
                   .add(RegisterEvent(newUser: newUser));
@@ -198,7 +207,7 @@ class _RegisterPageState extends State<RegisterPage> {
     String mobile = _mobileNumberController.text;
     String nationalId = _nationalIdController.text;
     String birthdate = _dateController.text;
-    String gender = _selectedGender.toString();
+    String gender = _genderController.text;
     String email = _emailController.text;
     String password = _passwordController.text;
     String confirmPassword = _confirmPasswordController.text;

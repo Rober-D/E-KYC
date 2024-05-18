@@ -2,7 +2,8 @@ import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 import 'package:e_kyc/core/util.dart';
 import 'package:e_kyc/features/auth/data/models/user_model.dart';
-import 'package:e_kyc/features/auth/data/models/user_status_model.dart';
+import 'package:e_kyc/features/auth/data/models/user_status_Success_model.dart';
+import 'package:e_kyc/features/auth/data/models/user_status_failed_model.dart';
 import 'package:e_kyc/features/auth/domain/entities/user_entity.dart';
 import '../../../../core/error/exceptions.dart';
 import '../../../../core/error/failres.dart';
@@ -11,7 +12,7 @@ import '../../domain/entities/user_status.dart';
 abstract class AuthenticationRemoteDataSource {
   Future<Either<Failures, Unit>> register({required UserEntity newUser});
 
-  Future<UserStatusEntity> logIn(
+  Future<Either<UserStatusFailedEntity,UserStatusSuccessEntity>> logIn(
       {required String emailOrUsername, required String password});
 
   Future<UserEntity> getUser({required String username, required String userToken});
@@ -20,7 +21,7 @@ abstract class AuthenticationRemoteDataSource {
 // Using Register and LogIn APIs With Dio.
 class AuthRemoteDataSourceDio implements AuthenticationRemoteDataSource {
   @override
-  Future<UserStatusEntity> logIn(
+  Future<Either<UserStatusFailedEntity,UserStatusSuccessEntity>> logIn(
       {required String emailOrUsername, required String password}) async {
     try {
       Map<String, dynamic> credentials = {
@@ -29,23 +30,28 @@ class AuthRemoteDataSourceDio implements AuthenticationRemoteDataSource {
       };
       Dio dio = Dio();
       print("BEFORE");
-      Response response = await dio
-          .post('https://e-kyc.onrender.com/api/auth/login', data: credentials);
+      Response response = await dio.post(
+          'https://kyc-75cv.onrender.com/api/auth/login',
+          data: credentials,
+          options: Options(
+            validateStatus: (status) {
+              // Allow all statuses to be handled in the response
+              return status! < 500;
+            },
+          ),);
       print("AFTER");
       if (response.statusCode == 200 || response.statusCode == 201) {
-        UserStatusEntity userStatus = UserStatusModel.fromJson(response.data);
-        return userStatus;
+        UserStatusSuccessEntity userStatus = UserStatusSuccessModel.fromJson(response.data);
+        return Right(userStatus);
       } else if(response.statusCode == 401){
         /// ToDo - Make an Exception and appear response message for user.
-        UserStatusEntity userStatus = response.data;
-        return userStatus;
+        UserStatusFailedEntity userStatus = UserStatusFailedModel.fromJson(response.data);
+        return Left(userStatus);
       }else{
         throw ServerException();
       }
-    } on APIFailure {
-      /// ToDo - Return Network Failure.
-      print("Exception Is HERE");
-      throw NetworkException();
+    } catch (e) {
+        throw Exception();
     }
   }
 
@@ -62,14 +68,14 @@ class AuthRemoteDataSourceDio implements AuthenticationRemoteDataSource {
         "nationalId": newUser.nationalId,
         "gender": newUser.gender
       };
-      Response response = await dio.post('https://e-kyc.onrender.com/api/auth/register',data: data);
+      Response response = await dio.post('https://kyc-75cv.onrender.com/api/auth/register',data: data);
       if (response.statusCode == 200 || response.statusCode == 201) {
         return const Right(unit);
       } else {
         /// ToDo - Make an Exception and appear response message for user.
         throw ServerException();
       }
-    } on APIFailure {
+    } catch (e){
       /// ToDo - Return Network Failure.
       return Left(NetworkFailure());
     }
@@ -81,7 +87,7 @@ class AuthRemoteDataSourceDio implements AuthenticationRemoteDataSource {
       Dio dio = Dio();
       dio.options.headers['Authorization'] = "Bearer $userToken";
       Response response = await dio
-          .get('https://e-kyc.onrender.com/users/$username');
+          .get('https://kyc-75cv.onrender.com/api/users/$username');
       if (response.statusCode == 200 || response.statusCode == 201) {
         UserEntity user = UserModel.fromJson(response.data);
         return user;

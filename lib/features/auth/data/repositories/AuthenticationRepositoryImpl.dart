@@ -15,11 +15,11 @@ class AuthenticationRepositoryImpl extends AuthenticationRepository {
       {required this.remoteDataSource, required this.networkInfo});
 
   @override
-  Future<UserStatusEntity> logIn(
+  Future<Either<UserStatusFailedEntity,UserStatusSuccessEntity>> logIn(
       {required String emailOrUsername, required String password}) async {
     if (await networkInfo.isConnected) {
       try{
-        UserStatusEntity userStatusEntity = await remoteDataSource.logIn(
+        var userStatusEntity = await remoteDataSource.logIn(
             emailOrUsername: emailOrUsername, password: password);
 
         return userStatusEntity;

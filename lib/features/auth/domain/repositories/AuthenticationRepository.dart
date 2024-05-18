@@ -5,6 +5,6 @@ import '../entities/user_status.dart';
 
 abstract class AuthenticationRepository{
   Future<Either<Failures,Unit>> register({required UserEntity newUser});
-  Future<UserStatusEntity> logIn({required String emailOrUsername, required String password});
+  Future<Either<UserStatusFailedEntity,UserStatusSuccessEntity>> logIn({required String emailOrUsername, required String password});
   Future<UserEntity> getUser({required String username, required String userToken});
 }

@@ -36,7 +36,7 @@ class NationalIdRemoteDataSourceDio implements NationalIdRemoteDataSource{
         "rejectionComment": ""
       };
       dio.options.headers['Authorization'] = "Bearer $userToken";
-      String url = "https://e-kyc.onrender.com/api/nationalId/add";
+      String url = "https://kyc-75cv.onrender.com/api/nationalId/add";
       Response response = await dio.post(url,data: data);
       if(response.statusCode == 200 || response.statusCode == 201){
         return Future.value(unit);
@@ -60,18 +60,18 @@ class NationalIdRemoteDataSourceDio implements NationalIdRemoteDataSource{
       Dio dio = Dio();
       print("NationalID is : $userNationalId");
       dio.options.headers['Authorization'] = "Bearer $userToken";
-      String url = "https://e-kyc.onrender.com/api/nationalId/by-national-id/$userNationalId";
+      String url = "https://kyc-75cv.onrender.com/api/nationalId/by-national-id/$userNationalId";
       Response response = await dio.get(url);
+      print("HERE IS THE PRINT MSG");
       if(response.statusCode == 200 || response.statusCode == 201){
         NationalIdEntity nationalId = NationalIdModel.fromJson(response.data);
         return nationalId;
       }else{
         throw ServerException();
       }
-    }on APIFailure{
-      print("NationalID is : $userNationalId");
-      print("This Catch");
-      throw NetworkException();
+    }catch (e){
+      NationalIdEntity nationalId = const NationalIdModel(id: "There is no NID for this username", firstName: "", lastName: "", address: "", nationalId: "", status: "", birthday: "", gender: "", image: "", contractAmount: 0);
+      return nationalId;
     }
   }
 
@@ -92,7 +92,7 @@ class NationalIdRemoteDataSourceDio implements NationalIdRemoteDataSource{
         "rejectionComment": ""
       };
       dio.options.headers['Authorization'] = "Bearer $userToken";
-      String url = "https://e-kyc.onrender.com/api/nationalId/${updatedUserNationalId.id}";
+      String url = "https://kyc-75cv.onrender.com/api/nationalId/${updatedUserNationalId.id}";
       Response response = await dio.put(url,data: data);
       if(response.statusCode == 200 || response.statusCode == 201){
         return Future.value(unit);

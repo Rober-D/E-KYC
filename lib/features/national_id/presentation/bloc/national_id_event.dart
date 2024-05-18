@@ -29,7 +29,7 @@ class UpdateNationalIdEvent extends NationalIdEvent{
 }
 
 class GetNationalIdEvent extends NationalIdEvent{
-  NationalIdEntity nationalId;
+  String nationalId;
   String token;
 
   GetNationalIdEvent({required this.nationalId, required this.token});

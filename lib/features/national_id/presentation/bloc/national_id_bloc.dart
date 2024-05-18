@@ -30,8 +30,7 @@ class NationalIdBloc extends Bloc<NationalIdEvent, NationalIdState> {
       if (event is GetNationalIdEvent) {
         emit(LoadingNationalIdState());
         await getNationalIdUseCase(
-            userNationalId: event.nationalId.nationalId, userToken: event.token);
-        emit(LoadedNationalIdState(nationalId: event.nationalId));
+            userNationalId: event.nationalId, userToken: event.token);
       } else if (event is CreateNationalIdEvent) {
         emit(LoadingNationalIdState());
         await createNationalIdUseCase(

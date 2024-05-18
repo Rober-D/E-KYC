@@ -4,11 +4,13 @@ import 'package:e_kyc/features/national_id/data/models/national_id_image_data_mo
 import 'package:e_kyc/features/national_id/domain/entities/national_id_entity.dart';
 import 'package:e_kyc/features/national_id/presentation/pages/make_sure.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 
 import '../../../../core/colors.dart';
+import '../bloc/national_id_bloc.dart';
 
 class CreateNationalIdCardPage extends StatefulWidget {
   const CreateNationalIdCardPage({super.key});
@@ -54,9 +56,17 @@ class _CreateNationalIdCardPageState extends State<CreateNationalIdCardPage> {
         },
         child: const Icon(Icons.add_photo_alternate_outlined),
       ),
-      body: SafeArea(
-        child: _imageFile != null
-            ? Column(
+      body: BlocBuilder<NationalIdBloc, NationalIdState>(
+        builder: (context, state) {
+          if (state is LoadingNationalIdState) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          } else if (state is LoadedNationalIdState) {
+            final nationalId = state.nationalId;
+            return  SafeArea(
+              child: _imageFile != null
+                  ? Column(
                 children: [
                   const SizedBox(
                     height: 30,
@@ -110,52 +120,52 @@ class _CreateNationalIdCardPageState extends State<CreateNationalIdCardPage> {
                       ? CircularProgressIndicator() // Show circular progress indicator while loading
                       : _responseText == null
                       ? Center(
-                          child: MaterialButton(
-                            minWidth: 200,
-                            onPressed: () async{
-                              /// ToDo - Extract Image by ML Algorithm ( Using flask API ).
-                              _responseText = await _triggerServer();
-                              print("The response has been returned is : $_responseText");
-                            },
-                            color: PRIMARY_GREEN,
-                            child: const Text(
-                              "Extract Image",
-                              style: TextStyle(color: Colors.white,fontSize: 20),
-                            ),
-                          ),
-                        )
+                    child: MaterialButton(
+                      minWidth: 200,
+                      onPressed: () async{
+                        /// ToDo - Extract Image by ML Algorithm ( Using flask API ).
+                        _responseText = await _triggerServer();
+                        print("The response has been returned is : $_responseText");
+                      },
+                      color: PRIMARY_GREEN,
+                      child: const Text(
+                        "Extract Image",
+                        style: TextStyle(color: Colors.white,fontSize: 20),
+                      ),
+                    ),
+                  )
                       : _responseText!.ocrData[0] == "Not Egyptian ID , please try again..." ? const Text("This is not a National ID, please upload valid one") :
                   (_responseText!.ocrData[0] == "The picture is not clear enough , please take a close , high resolution and clear picture") ? const Text("Please take a clear National ID image") :
                   Center(
-                          child: MaterialButton(
-                            minWidth: 200,
-                            onPressed: () {
-                              /// ToDo - Use Create National ID API.
+                    child: MaterialButton(
+                      minWidth: 200,
+                      onPressed: () {
+                        /// ToDo - Use Create National ID API.
 
-                              NationalIdEntity nationalId = NationalIdEntity(
-                                  firstName: _responseText!.ocrData[0],
-                                  lastName: _responseText!.ocrData[1],
-                                  nationalId: _responseText!.ocrData[2],
-                                  birthday: _responseText!.ocrData[3],
-                                  address: _responseText!.ocrData[4],
-                                  gender: _responseText!.ocrData[5],
-                                  image: _base64Image!,
-                                  status: "PENDING",
-                                  contractAmount: 250);
+                        NationalIdEntity nationalId = NationalIdEntity(
+                            firstName: _responseText!.ocrData[0],
+                            lastName: _responseText!.ocrData[1],
+                            nationalId: _responseText!.ocrData[2],
+                            birthday: _responseText!.ocrData[3],
+                            address: _responseText!.ocrData[4],
+                            gender: _responseText!.ocrData[5],
+                            image: _base64Image!,
+                            status: "PENDING",
+                            contractAmount: 250);
 
-                              Navigator.pushNamed(context, Makesure.routeName,
-                                  arguments: nationalId);
-                            },
-                            color: PRIMARY_GREEN,
-                            child: const Text(
-                              "Submit",
-                              style: TextStyle(color: Colors.white,fontSize: 20),
-                            ),
-                          ),
-                        ),
+                        Navigator.pushNamed(context, Makesure.routeName,
+                            arguments: nationalId);
+                      },
+                      color: PRIMARY_GREEN,
+                      child: const Text(
+                        "Submit",
+                        style: TextStyle(color: Colors.white,fontSize: 20),
+                      ),
+                    ),
+                  ),
                 ],
               )
-            : Column(
+                  : Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Center(
@@ -179,7 +189,18 @@ class _CreateNationalIdCardPageState extends State<CreateNationalIdCardPage> {
                   )
                 ],
               ),
-      ),
+            );
+          } else if (state is NationalIdErrorState) {
+            return Center(
+              child: Text('Error: ${state.errorMsg}'),
+            );
+          } else {
+            return const Center(
+              child: Text('You already have a National ID Card...'),
+            );
+          }
+        },
+      )
     );
   }
 
