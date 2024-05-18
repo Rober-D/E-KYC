@@ -1,9 +1,7 @@
 import 'package:e_kyc/features/auth/presentation/pages/login_page.dart';
-import 'package:e_kyc/features/national_id/presentation/pages/choose.dart';
 import 'package:e_kyc/features/national_id/presentation/pages/view_national_id_page.dart';
 import 'package:e_kyc/features/national_id/presentation/pages/create_national_id.dart';
 import 'package:flutter/material.dart';
-
 import '../../features/auth/presentation/pages/register_page.dart';
 import '../../features/national_id/presentation/pages/home_page.dart';
 import '../../features/national_id/presentation/pages/submit_national_id.dart';
@@ -22,9 +20,6 @@ class Routes {
       case LoginPage.routeName:
         return MaterialPageRoute(
             builder: (context) => LoginPage(), settings: settings);
-      case Choose.routeName:
-        return MaterialPageRoute(
-            builder: (context) => Choose(), settings: settings);
       case HomePage.routeName:
         return MaterialPageRoute(
             builder: (context) => HomePage(), settings: settings);
